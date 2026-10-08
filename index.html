@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SBK Service Audit — แดชบอร์ดวิเคราะห์ v8</title>
+<title>SBK Service Audit — แดชบอร์ดวิเคราะห์ v9</title>
 <meta name="theme-color" content="#4f46e5">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -101,10 +101,10 @@ tbody tr{animation:fi .45s both}.lb{animation:fi .5s both}.bn{animation:fu .4s b
 @page{size:A4;margin:14mm}
 @media print{body>*:not(#rp){display:none!important}body:before{display:none}body{background:#fff}
 #rp{display:block;color:#0f172a;font-size:12px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-#rp h1{font-size:17px;margin-bottom:2px}#rp .rph{border-bottom:3px solid #4f46e5;padding-bottom:8px;margin-bottom:10px}#rp h2{font-size:13.5px;margin:14px 0 6px;color:#3730a3}
+#rp h1{font-size:17px;margin-bottom:2px}#rp .rph{border-bottom:3px solid #4f46e5;padding-bottom:8px;margin-bottom:10px}#rp .rpt{font-size:14px;font-weight:700;color:#3730a3;margin-top:6px}#rp h2{font-size:13.5px;margin:14px 0 6px;color:#3730a3}
 .rt{width:100%;border-collapse:collapse;margin-bottom:4px}.rt th,.rt td{border:1px solid #94a3b8;padding:4px 7px;text-align:center}.rt th{background:#e0e7ff}.rt.kv td:nth-child(odd){background:#f1f5f9;font-weight:600;text-align:left}.rt.kv td{text-align:left}
 #rp tr{page-break-inside:avoid;animation:none}#rp thead{display:table-header-group}
-#rp .ins li{font-size:12px}.sg{display:flex;justify-content:space-around;margin-top:36px;text-align:center;page-break-inside:avoid}}
+#rp .ins li{font-size:12px}}
 /* พื้นหลัง: การ์ดโปร่งแสง (glass) + กริดเลื่อน + แสงออโรราลอย */
 :root{--cg:rgba(255,255,255,.8)}[data-t=dark]{--cg:rgba(21,27,48,.74)}
 .card{background:var(--cg);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -114,6 +114,13 @@ body:after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;back
 body:before{background-size:100% 100%}
 .g2 .card:nth-child(5){animation-delay:.5s}
 @media(min-width:1100px){.g2 .insc{grid-column:span 2}} /* จอกว้าง (3 คอลัมน์): การ์ดสรุปผลกินพื้นที่ 2 ช่อง เติมช่องว่างข้าง Leaderboard พอดี */
+/* โหมดมืด: การ์ดโทนน้ำเงินม่วงอ่อนกว่าพื้นหลัง + ขอบเรืองและแสงด้านบน */
+[data-t=dark]{--card:#222b50;--cg:rgba(38,49,92,.7);--bd:#3a4673}
+[data-t=dark] .card{border-color:rgba(129,140,248,.3);background-image:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,0) 45%);box-shadow:0 10px 30px rgba(0,0,0,.4),inset 0 1px 0 rgba(255,255,255,.08)}
+.rt5{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:12px}
+.rt5 button{border:1.5px solid var(--bd);background:var(--bg);color:var(--tx);border-radius:12px;padding:8px 2px;font:inherit;font-size:.8rem;cursor:pointer;transition:.2s}
+.rt5 .act{background:linear-gradient(120deg,#4f46e5,#7c3aed);color:#fff;border-color:transparent;transform:translateY(-1px);box-shadow:0 6px 14px rgba(79,70,229,.35)}
+.rf{display:grid;gap:10px}
 </style>
 </head>
 <body>
@@ -133,12 +140,12 @@ body:before{background-size:100% 100%}
   <div class="l" id="hLogo"></div>
   <div><h2>แดชบอร์ดวิเคราะห์ผลการตรวจ</h2><small id="hClk"></small></div>
   <div class="sp"></div>
-  <a class="ib" id="formLink" href="SBK_Service_Audit_Form_v8.html">📝 ฟอร์มตรวจ</a>
+  <a class="ib" id="formLink" href="SBK_Service_Audit_Form_v9.html">📝 ฟอร์มตรวจ</a>
   <button class="ib" onclick="load()">🔄 รีเฟรช</button>
   <button class="ib" onclick="$('imp').click()">⬆ นำเข้า</button>
   <button class="ib" onclick="exp('csv')">⬇ CSV</button>
   <button class="ib" onclick="exp('json')">⬇ JSON</button>
-  <button class="ib" onclick="report()">🖨 ใบรายงาน</button>
+  <button class="ib" onclick="reportMenu()">🖨 ใบรายงาน</button>
   <button class="ib" onclick="theme()">🌓</button>
   <input type="file" id="imp" accept=".csv,.json" hidden>
 </header>
@@ -170,13 +177,19 @@ body:before{background-size:100% 100%}
 </main>
 
 <div class="mo" id="mo" onclick="if(event.target===this)this.classList.remove('on')"><div class="md" id="md"></div></div>
+<div class="mo" id="rm" onclick="if(event.target===this)this.classList.remove('on')"><div class="md" style="max-width:480px">
+  <h3 style="font-size:1.1rem;display:block;margin-bottom:10px">🖨 เลือกประเภทใบรายงาน</h3>
+  <div id="rtabs" class="rt5"><button data-t="day" onclick="rtype('day')">รายวัน</button><button data-t="week" onclick="rtype('week')">รายสัปดาห์</button><button data-t="month" onclick="rtype('month')">รายเดือน</button><button data-t="year" onclick="rtype('year')">รายปี</button><button data-t="cur" onclick="rtype('cur')">ตามตัวกรอง</button></div>
+  <div class="rf"><div><label>วันที่</label><input type="date" id="rdt"></div><div><label>เดือน</label><select id="rmo"></select></div><div><label>ปี (พ.ศ.)</label><select id="ryr"></select></div></div>
+  <p id="rhint" style="font-size:.8rem;color:var(--mu);margin:6px 0 14px"></p>
+  <div style="display:flex;gap:8px"><button class="ib" style="flex:1;background:#4f46e5;padding:10px" onclick="report()">พิมพ์ / บันทึกเป็น PDF</button><button class="ib" style="flex:1;background:#64748b;padding:10px" onclick="$('rm').classList.remove('on')">ยกเลิก</button></div></div></div>
 <div id="rp"></div>
 <div id="toast"></div>
 
 <script>
 /* ===== ตั้งค่า ===== */
 const API_URL = 'https://script.google.com/macros/s/AKfycbyhYoaB58BSjU57biQeieEFsCfHnGb5t285rdRWRC5Sl1a1hYa6wY9E1JZECe9tSOQC/exec';
-const FORM_URL = 'SBK_Service_Audit_Form_v8.html';
+const FORM_URL = 'SBK_Service_Audit_Form_v9.html';
 const PASS_PCT = 70, MIN_DOMAIN = 3, PAGE = 10;
 const DN = ['บุคลิกภาพ/การแต่งกาย', 'คำพูด/ภาษา', 'ท่าทาง/ภาษากาย', 'โพเดียม/การปรากฏตัว', 'บริการ/ช่วยเหลือลูกค้า', 'สื่อสาร/ประสานงาน'];
 const COL = ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#a855f7', '#ec4899', '#14b8a6'];
@@ -243,7 +256,7 @@ async function load() {
       let j; try { j = JSON.parse(txt); } catch (x) { const er = new Error('HTML'); er.snip = txt.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160); throw er; }
       if (!j.ok) throw new Error(j.error || 'ERR');
       const raw = j.rows || []; ALL = raw.map(cleanRow).filter(Boolean);
-      const old = j.version ? '' : '⚠️ Backend ยังเป็นโค้ดเก่า (ไม่มีเลขเวอร์ชัน) — วางโค้ด Code_v8.gs แล้ว Deploy → New version', bt = !raw.length ? 'เชื่อมต่อสำเร็จ แต่ชีต "ผลการตรวจ" ยังไม่มีข้อมูล — ลองบันทึกจากฟอร์มก่อน'
+      const old = j.version ? '' : '⚠️ Backend ยังเป็นโค้ดเก่า (ไม่มีเลขเวอร์ชัน) — วางโค้ด Code_v9.gs แล้ว Deploy → New version', bt = !raw.length ? 'เชื่อมต่อสำเร็จ แต่ชีต "ผลการตรวจ" ยังไม่มีข้อมูล — ลองบันทึกจากฟอร์มก่อน'
         : ALL.length < raw.length ? `เชื่อมต่อสำเร็จ: ดึงได้ ${raw.length} แถว ใช้ได้ ${ALL.length} แถว (ข้าม ${raw.length - ALL.length} แถวที่ข้อมูลไม่ครบหรือวันที่ผิดรูปแบบ)` : '';
       banner(old ? (bt ? bt + ' | ' : '') + old : bt);
     }
@@ -330,20 +343,21 @@ function charts() {
 }
 
 /* ===== Leaderboard / Insights ===== */
-function ranks() {
-  const by = {}; F.forEach(r => (by[r.name] ||= []).push(r));
+function ranks(R = F) {
+  const by = {}; R.forEach(r => (by[r.name] ||= []).push(r));
   return Object.entries(by).map(([n, v]) => ({ ...evalSet(v), n, role: v[0].role, k: v.length })).sort((a, b) => b.pct - a.pct || b.k - a.k);
 }
 function board() {
   const t = ranks().slice(0, 5), m = ['🥇', '🥈', '🥉', '4️⃣', '5️⃣'];
   $('lb').innerHTML = t.length ? t.map((x, i) => `<div class="lb" style="animation-delay:${i * 90}ms"><span class="m">${m[i]}</span><div><b>${esc(x.n)}</b><small>${esc(x.role)} · ตรวจ ${x.k} ครั้ง</small></div><b style="color:#059669">${x.pct}%</b></div>`).join('') : '<div class="em">ไม่มีข้อมูลในช่วงที่เลือก</div>';
 }
-function insights() {
-  const e = evalSet(F); if (!e.n) { $('ins').innerHTML = '<div class="em">ไม่มีข้อมูลสำหรับสรุปผล</div>'; return; }
+function insights() { $('ins').innerHTML = insightHtml(F); }
+function insightHtml(R) {
+  const e = evalSet(R); if (!e.n) return '<div class="em">ไม่มีข้อมูลสำหรับสรุปผล</div>';
   const idx = e.av.map((v, i) => [v, i]).sort((a, b) => b[0] - a[0]), hi = idx[0], lo = idx[5];
-  const rk = ranks(), bad = rk.filter(x => !x.pass), crit = idx.filter(x => x[0] < 3.5 && x[0] > 0).reverse();
-  const half = Math.floor(F.length / 2), srt = [...F].sort((a, b) => a.date < b.date ? -1 : 1);
-  const tr = F.length >= 6 ? evalSet(srt.slice(half)).pct - evalSet(srt.slice(0, half)).pct : null;
+  const rk = ranks(R), bad = rk.filter(x => !x.pass), crit = idx.filter(x => x[0] < 3.5 && x[0] > 0).reverse();
+  const half = Math.floor(R.length / 2), srt = [...R].sort((a, b) => a.date < b.date ? -1 : 1);
+  const tr = R.length >= 6 ? evalSet(srt.slice(half)).pct - evalSet(srt.slice(0, half)).pct : null;
   let h = `<ul><li>ภาพรวมคะแนน <b>${e.pct}%</b> จาก ${e.n.toLocaleString('th-TH')} ครั้ง — ${e.pass ? '<b style="color:#059669">ผ่านเกณฑ์</b>' : '<b class="cr">ต่ำกว่าเกณฑ์ที่กำหนด</b>'} (เกณฑ์ ${PASS_PCT}%)</li>
   <li>✅ จุดแข็งหลัก: <b>${DN[hi[1]]}</b> (${r1(hi[0])}/5) · จุดที่ควรพัฒนาที่สุด: <b>${DN[lo[1]]}</b> (${r1(lo[0])}/5)</li>`;
   if (tr !== null) h += `<li>แนวโน้มครึ่งหลังเทียบครึ่งแรกของช่วงที่เลือก: ${tr >= 0 ? '📈 ดีขึ้น' : '📉 ลดลง'} ${Math.abs(r1(tr))} จุด</li>`;
@@ -351,7 +365,7 @@ function insights() {
   h += '</ul>';
   h += (crit.length || bad.length) ? `<ul class="ins"><li class="cr">⚠️ Critical Action Items</li>${crit.map(c => `<li>เร่งอบรมหัวข้อ "${DN[c[1]]}" — เฉลี่ย ${r1(c[0])}/5 ต่ำกว่า 3.5</li>`).join('')}${bad.length ? `<li>พนักงานที่ต้องอบรมเพิ่ม ${bad.length} คน: ${bad.slice(-5).reverse().map(x => esc(x.n) + ' (' + x.pct + '%)').join(', ')}${bad.length > 5 ? ' ...' : ''}</li>` : ''}</ul>`
     : '<p style="color:#059669;font-size:.9rem">✅ ไม่พบหัวข้อวิกฤต ทุกหัวข้อเฉลี่ยตั้งแต่ 3.5 ขึ้นไป</p>';
-  $('ins').innerHTML = h;
+  return h;
 }
 
 /* ===== สรุปคะแนนเจ้าหน้าที่ทุกคน เรียงมาก → น้อย ===== */
@@ -374,23 +388,62 @@ function ranking() {
   $('rkb').innerHTML = R.length ? R.map((r, i) => `<tr style="animation-delay:${Math.min(i, 20) * 30}ms"${r.nm ? ` onclick="drill('${esc(r.nm)}')"` : ''}>${r.c.map(c => `<td>${c}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${H.length}" class="em">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>`;
 }
 /* ===== ใบรายงานสรุป (A4) — พิมพ์หรือบันทึกเป็น PDF ===== */
+const MTH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+let RT = 'day';
+const iso = x => x.getFullYear() + '-' + pad(x.getMonth() + 1) + '-' + pad(x.getDate());
+const mondayOf = s => { const x = new Date(s + 'T00:00:00'); x.setDate(x.getDate() - (x.getDay() + 6) % 7); return x; };
+function reportMenu() {
+  if (!ALL.length) return toast('ไม่มีข้อมูลสำหรับสร้างใบรายงาน', false);
+  const last = ALL.map(r => r.date).sort().pop(), ys = [...new Set(ALL.map(r => +r.date.slice(0, 4)))].sort((a, b) => b - a);
+  $('rmo').innerHTML = MTH.map((m, i) => `<option value="${i}">${m}</option>`).join('');
+  $('ryr').innerHTML = ys.map(y => `<option value="${y}">${y + 543}</option>`).join('');
+  $('rdt').value = last; $('rmo').value = +last.slice(5, 7) - 1; $('ryr').value = +last.slice(0, 4);
+  rtype(RT); $('rm').classList.add('on');
+}
+function rtype(t) {
+  RT = t; document.querySelectorAll('#rtabs button').forEach(b => b.classList.toggle('act', b.dataset.t === t));
+  $('rdt').parentElement.style.display = (t === 'day' || t === 'week') ? '' : 'none';
+  $('rmo').parentElement.style.display = t === 'month' ? '' : 'none';
+  $('ryr').parentElement.style.display = (t === 'month' || t === 'year') ? '' : 'none';
+  $('rhint').textContent = { day: 'เลือกวันที่ต้องการ', week: 'เลือกวันใดก็ได้ในสัปดาห์นั้น (นับสัปดาห์ จันทร์–อาทิตย์)', month: 'เลือกเดือนและปี (พ.ศ.)', year: 'เลือกปี (พ.ศ.)', cur: 'ใช้ช่วงวันที่และตัวกรองทั้งหมดตามที่ตั้งไว้บนหน้าจอ' }[t] + (t === 'cur' ? '' : ' · ตัวกรองตำแหน่ง/บุคคล/สถานะ/ชั้น ยังมีผลอยู่');
+}
 function report() {
-  const e = evalSet(F); if (!e.n) return toast('ไม่มีข้อมูลสำหรับสร้างใบรายงาน', false);
-  const rk = ranks(), ds = F.map(r => r.date).sort(), ppS = avg([e.av[0], e.av[2], e.av[3]]) / 5 * 100, csS = avg([e.av[1], e.av[4], e.av[5]]) / 5 * 100;
+  const oth = r => (!$('f3').value || r.role === $('f3').value) && (!$('f4').value || r.name === $('f4').value) && (!$('f5').value || (r.pass ? 'ผ่าน' : 'ต้องอบรมเพิ่ม') === $('f5').value) && (!$('f6').value || r.floor === $('f6').value);
+  let R, title, a, b;
+  if (RT === 'cur') { R = F; title = 'ตามตัวกรองที่เลือก'; }
+  else {
+    if (RT === 'day' || RT === 'week') { if (!$('rdt').value) return toast('กรุณาเลือกวันที่', false); }
+    if (RT === 'day') { a = b = $('rdt').value; title = 'รายวัน — ' + fmtD(a); }
+    else if (RT === 'week') { const m = mondayOf($('rdt').value), s = new Date(m); s.setDate(s.getDate() + 6); a = iso(m); b = iso(s); title = 'รายสัปดาห์ — ' + fmtD(a) + ' ถึง ' + fmtD(b); }
+    else if (RT === 'month') { const y = +$('ryr').value, m = +$('rmo').value; a = y + '-' + pad(m + 1) + '-01'; b = y + '-' + pad(m + 1) + '-' + pad(new Date(y, m + 1, 0).getDate()); title = 'รายเดือน — ' + MTH[m] + ' ' + (y + 543); }
+    else { const y = +$('ryr').value; a = y + '-01-01'; b = y + '-12-31'; title = 'รายปี — พ.ศ. ' + (y + 543); }
+    R = ALL.filter(r => r.date >= a && r.date <= b && oth(r));
+  }
+  const e = evalSet(R); if (!e.n) return toast('ไม่พบข้อมูลในช่วงที่เลือก', false);
+  const rk = ranks(R), ds = R.map(r => r.date).sort(), ppS = avg([e.av[0], e.av[2], e.av[3]]) / 5 * 100, csS = avg([e.av[1], e.av[4], e.av[5]]) / 5 * 100;
   const flt = [['ตำแหน่ง', 'f3'], ['รายบุคคล', 'f4'], ['สถานะ', 'f5'], ['ชั้น', 'f6']].filter(x => $(x[1]).value).map(x => x[0] + ': ' + $(x[1]).value).join(' · ') || 'ไม่มี (ข้อมูลทั้งหมด)';
-  const now = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }), pass = F.filter(r => r.pass).length;
-  $('rp').innerHTML = `<div class="rph"><h1>รายงานสรุปผลการตรวจประเมินสมรรถนะการบริการ บุคลิกภาพ และการสื่อสาร</h1><div>ศูนย์ซีคอน บางแค · SBK Service Audit</div></div>
-  <table class="rt kv"><tr><td>ช่วงข้อมูล</td><td>${fmtD(ds[0])} – ${fmtD(ds[ds.length - 1])}</td><td>วันที่จัดทำรายงาน</td><td>${now}</td></tr>
+  const now = new Date().toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }), pass = R.filter(r => r.pass).length;
+  // ตารางผลแยกช่วงย่อย: วัน→กะ · สัปดาห์→รายวัน · เดือน→รายสัปดาห์ · ปี→รายเดือน
+  const span = (new Date(ds[ds.length - 1]) - new Date(ds[0])) / 864e5, mon = RT === 'year' || (RT === 'cur' && span > 31);
+  const kf = RT === 'day' ? r => r.shift : RT === 'month' ? r => iso(mondayOf(r.date)) : mon ? r => r.date.slice(0, 7) : r => r.date, g = {};
+  R.forEach(r => (g[kf(r)] ||= []).push(r));
+  const SO = ['เช้า', 'บ่าย', 'ดึก'], ks = Object.keys(g).sort((x, y) => RT === 'day' ? (SO.indexOf(x) + 9) % 9 - (SO.indexOf(y) + 9) % 9 : x < y ? -1 : 1);
+  const lab = k => RT === 'day' ? 'กะ' + k : /^\d{4}-\d\d$/.test(k) ? MTH[+k.slice(5) - 1] + ' ' + (+k.slice(0, 4) + 543) : (RT === 'month' ? 'สัปดาห์เริ่ม ' : '') + fmtD(k);
+  const subH = RT === 'day' ? 'กะ' : RT === 'week' ? 'วันที่' : RT === 'month' ? 'สัปดาห์' : mon ? 'เดือน' : 'วันที่';
+  $('rp').innerHTML = `<div class="rph"><h1>รายงานสรุปผลการตรวจประเมินสมรรถนะการบริการ บุคลิกภาพ และการสื่อสาร</h1><div>ศูนย์ซีคอน บางแค · SBK Service Audit</div><div class="rpt">${esc(title)}</div></div>
+  <table class="rt kv"><tr><td>ช่วงข้อมูลที่พบ</td><td>${fmtD(ds[0])} – ${fmtD(ds[ds.length - 1])}</td><td>วันที่จัดทำรายงาน</td><td>${now}</td></tr>
   <tr><td>เงื่อนไขการกรอง</td><td>${esc(flt)}</td><td>จำนวนที่ตรวจ</td><td>${e.n} ครั้ง · ${rk.length} คน</td></tr>
   <tr><td>เกณฑ์ผ่าน</td><td colspan="3">คะแนนเฉลี่ย ≥ ${PASS_PCT}% และไม่มีหัวข้อใดเฉลี่ยต่ำกว่า ${MIN_DOMAIN} จาก 5</td></tr></table>
   <h2>1. สรุปภาพรวม</h2><table class="rt"><tr><th>คะแนนภาพรวม</th><th>อัตราผ่าน (ครั้ง)</th><th>บุคลิกภาพ &amp; โพเดียม</th><th>การพูด &amp; การบริการ</th><th>ผ่าน / ต้องอบรมเพิ่ม (คน)</th></tr>
   <tr><td>${e.pct}%</td><td>${r1(pass / e.n * 100)}% (${pass}/${e.n})</td><td>${r1(ppS)}%</td><td>${r1(csS)}%</td><td>${rk.filter(x => x.pass).length} / ${rk.filter(x => !x.pass).length}</td></tr></table>
-  <h2>2. คะแนนเฉลี่ยรายหัวข้อ</h2><table class="rt"><tr><th>หัวข้อ</th><th>คะแนน (เต็ม 5)</th><th>ร้อยละ</th><th>ผลเทียบเกณฑ์</th></tr>
-  ${e.av.map((a, i) => `<tr><td style="text-align:left">${i + 1}. ${DN[i]}</td><td>${r1(a)}</td><td>${r1(a / 5 * 100)}%</td><td>${a >= MIN_DOMAIN ? 'ผ่าน' : 'ต่ำกว่าเกณฑ์'}</td></tr>`).join('')}</table>
-  <h2>3. ผลการจัดอันดับเจ้าหน้าที่ (ทั้งหมด เรียงคะแนนมาก → น้อย)</h2><table class="rt"><tr><th>อันดับ</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตรวจ (ครั้ง)</th><th>คะแนน</th><th>สถานะ</th><th>ควรพัฒนา</th></tr>
+  <h2>2. ผลการประเมินแยกตามช่วงย่อย</h2><table class="rt"><tr><th>${subH}</th><th>ตรวจ (ครั้ง)</th><th>คะแนนเฉลี่ย</th><th>อัตราผ่าน</th></tr>
+  ${ks.map(k => { const v = g[k], ev = evalSet(v), p = v.filter(r => r.pass).length; return `<tr><td style="text-align:left">${esc(lab(k))}</td><td>${v.length}</td><td>${ev.pct}%</td><td>${r1(p / v.length * 100)}%</td></tr>`; }).join('')}</table>
+  <h2>3. คะแนนเฉลี่ยรายหัวข้อ</h2><table class="rt"><tr><th>หัวข้อ</th><th>คะแนน (เต็ม 5)</th><th>ร้อยละ</th><th>ผลเทียบเกณฑ์</th></tr>
+  ${e.av.map((x, i) => `<tr><td style="text-align:left">${i + 1}. ${DN[i]}</td><td>${r1(x)}</td><td>${r1(x / 5 * 100)}%</td><td>${x >= MIN_DOMAIN ? 'ผ่าน' : 'ต่ำกว่าเกณฑ์'}</td></tr>`).join('')}</table>
+  <h2>4. ผลการจัดอันดับเจ้าหน้าที่ (ทั้งหมด เรียงคะแนนมาก → น้อย)</h2><table class="rt"><tr><th>อันดับ</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตรวจ (ครั้ง)</th><th>คะแนน</th><th>สถานะ</th><th>ควรพัฒนา</th></tr>
   ${rk.map((x, i) => `<tr><td>${i + 1}</td><td style="text-align:left">${esc(x.n)}</td><td>${esc(x.role)}</td><td>${x.k}</td><td>${x.pct}%</td><td>${x.pass ? 'ผ่าน' : 'ต้องอบรมเพิ่ม'}</td><td style="text-align:left">${DN[x.av.indexOf(Math.min(...x.av))]}</td></tr>`).join('')}</table>
-  <h2>4. สรุปผลวิเคราะห์</h2><div class="ins">${$('ins').innerHTML}</div>
-  <div class="sg"><div>ลงชื่อ ....................................<br>ผู้จัดทำรายงาน</div><div>ลงชื่อ ....................................<br>ผู้ตรวจสอบ</div><div>ลงชื่อ ....................................<br>ผู้อนุมัติ</div></div>`;
+  <h2>5. สรุปผลวิเคราะห์</h2><div class="ins">${insightHtml(R)}</div>`;
+  $('rm').classList.remove('on');
   window.print();
 }
 /* ===== ตารางรายละเอียด ===== */
