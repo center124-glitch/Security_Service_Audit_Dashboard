@@ -300,7 +300,8 @@ padding:calc(10px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right
 /* ===== ตั้งค่า ===== */
 const VERSION = 'v13', MIN_BACKEND = 11; // แดชบอร์ดนี้ใช้กับ Backend v11 ขึ้นไป (มี UID กันบันทึกซ้ำ)
 const API_URL = 'https://script.google.com/macros/s/AKfycbyhYoaB58BSjU57biQeieEFsCfHnGb5t285rdRWRC5Sl1a1hYa6wY9E1JZECe9tSOQC/exec';
-const FORM_URL = 'SBK_Service_Audit_Form_v13.html';
+// ฟอร์มอยู่คนละ repo บน GitHub Pages (ไฟล์ index.html) → ใช้ URL เต็ม (เดิมเป็นชื่อไฟล์ในโฟลเดอร์เดียวกัน จึงขึ้น 404)
+const FORM_URL = 'https://center124-glitch.github.io/Security_Service_Audit_Form/';
 const PASS_PCT = 70, MIN_DOMAIN = 3, PAGE = 10, AUTO_MS = 5 * 60e3, FETCH_MS = 30000;
 const DN = ['บุคลิกภาพ/การแต่งกาย', 'คำพูด/ภาษา', 'ท่าทาง/ภาษากาย', 'โพเดียม/การปรากฏตัว', 'บริการ/ช่วยเหลือลูกค้า', 'สื่อสาร/ประสานงาน'];
 const SC = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#059669']; // สีระดับคะแนน 1–5 (ตรงกับปุ่มในฟอร์ม)
