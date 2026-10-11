@@ -235,7 +235,6 @@ padding:calc(10px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right
   <div class="ht"><h2>แดชบอร์ดวิเคราะห์ผลการตรวจ</h2><small id="hClk"></small></div>
   <span class="net" id="net" role="img" aria-label="สถานะเครือข่าย"></span>
   <nav class="act" aria-label="เมนู">
-    <a class="ib" id="formLink" href="#"><i>📝</i><span>ฟอร์มตรวจ</span></a>
     <button class="ib" id="rfb" onclick="load()"><i>🔄</i><span>รีเฟรช</span></button>
     <button class="ib" onclick="$('imp').click()"><i>⬆</i><span>นำเข้า</span></button>
     <button class="ib" onclick="exp('csv')"><i>⬇</i><span>CSV</span></button>
@@ -300,8 +299,6 @@ padding:calc(10px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right
 /* ===== ตั้งค่า ===== */
 const VERSION = 'v13', MIN_BACKEND = 11; // แดชบอร์ดนี้ใช้กับ Backend v11 ขึ้นไป (มี UID กันบันทึกซ้ำ)
 const API_URL = 'https://script.google.com/macros/s/AKfycbyhYoaB58BSjU57biQeieEFsCfHnGb5t285rdRWRC5Sl1a1hYa6wY9E1JZECe9tSOQC/exec';
-// ฟอร์มอยู่คนละ repo บน GitHub Pages (ไฟล์ index.html) → ใช้ URL เต็ม (เดิมเป็นชื่อไฟล์ในโฟลเดอร์เดียวกัน จึงขึ้น 404)
-const FORM_URL = 'https://center124-glitch.github.io/Security_Service_Audit_Form/';
 const PASS_PCT = 70, MIN_DOMAIN = 3, PAGE = 10, AUTO_MS = 5 * 60e3, FETCH_MS = 30000;
 const DN = ['บุคลิกภาพ/การแต่งกาย', 'คำพูด/ภาษา', 'ท่าทาง/ภาษากาย', 'โพเดียม/การปรากฏตัว', 'บริการ/ช่วยเหลือลูกค้า', 'สื่อสาร/ประสานงาน'];
 const SC = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#059669']; // สีระดับคะแนน 1–5 (ตรงกับปุ่มในฟอร์ม)
@@ -1046,7 +1043,7 @@ function net() { const off = navigator.onLine === false; $('net').classList.togg
 /* ===== เริ่มทำงาน ===== */
 (function () { const t = lsGet(TK); document.documentElement.dataset.t = t === 'dark' || (t !== 'light' && t !== '' && matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'; })();
 lsDel('sbk_audit_cache_v1');
-$('spLogo').innerHTML = LOGO; $('hLogo').innerHTML = LOGO; $('formLink').href = FORM_URL;
+$('spLogo').innerHTML = LOGO; $('hLogo').innerHTML = LOGO;
 document.querySelectorAll('main .card').forEach(c => { // แต้มสีการ์ดตามสีไอคอนหัวการ์ด
   const ic = c.querySelector('.ic'); if (!ic) return; const a = ic.style.getPropertyValue('--a').trim(), b = ic.style.getPropertyValue('--b').trim();
   if (!/^#[0-9a-f]{6}$/i.test(a)) return; c.classList.add('tc'); c.style.setProperty('--t1', a + '1c'); c.style.setProperty('--t2', (/^#[0-9a-f]{6}$/i.test(b) ? b : a) + '0c'); c.style.setProperty('--t3', a + '3a');
