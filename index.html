@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>SBK Service Audit — แดชบอร์ดวิเคราะห์ v12</title>
+<title>SBK Service Audit — แดชบอร์ดวิเคราะห์ v13</title>
 <meta name="theme-color" content="#1e1b4b">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" id="ati" href="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet" crossorigin="anonymous">
 <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
 <link rel="dns-prefetch" href="//script.google.com"><link rel="dns-prefetch" href="//script.googleusercontent.com">
 <style>
@@ -198,7 +198,21 @@ footer{max-width:1320px;margin:0 auto;padding:6px max(14px,env(safe-area-inset-r
 @media(prefers-reduced-motion:reduce){*,:before,:after{animation:none!important;transition:none!important}}
 /* ===== Print: แสดงเฉพาะใบรายงาน ===== */
 #rp{display:none}
-@media print{body>*:not(#rp){display:none!important}html,body{background:#fff!important}#rp{display:block}}
+/* ===== หน้าต่างดูตัวอย่างใบรายงาน ===== */
+#pv{position:fixed;inset:0;z-index:70;display:none;flex-direction:column;background:#1e293b}
+#pv.on{display:flex}
+.pvb{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:linear-gradient(115deg,#1e1b4b,#3730a3 55%,#0e7490);color:#fff;
+padding:calc(10px + env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) 10px max(14px,env(safe-area-inset-left));box-shadow:0 6px 20px rgba(0,0,0,.3)}
+.pvb .t{flex:1;min-width:180px}.pvb .t b{display:block;font-size:.98rem;line-height:1.3}.pvb .t small{opacity:.85;font-size:.74rem;overflow-wrap:anywhere}
+.pvb button{border:1px solid rgba(255,255,255,.3);background:rgba(255,255,255,.14);color:#fff;border-radius:11px;min-height:40px;padding:6px 13px;font-size:.85rem;cursor:pointer;white-space:nowrap}
+.pvb button.p{background:#fff;color:#3730a3;font-weight:600;border-color:#fff}
+.pvs{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:18px 12px calc(24px + env(safe-area-inset-bottom))}
+.pvw{margin:0 auto;position:relative}
+@media(max-width:560px){.pvb{gap:6px}.pvb .t{min-width:100%}.pvb .t b{font-size:.88rem}.pvb .t small{font-size:.66rem}.pvb button{flex:1;min-height:38px;padding:5px 8px;font-size:.8rem}}
+.rpd .rp-sum p{font-size:11px!important}
+.pvp{width:794px;transform-origin:top left;position:absolute;left:0;top:0;display:flex;flex-direction:column;gap:22px}
+.pvp .rp-page{border-radius:3px;box-shadow:0 12px 40px rgba(0,0,0,.45)}
+@media print{#rp .rp-page{box-shadow:none;border-radius:0}body>*:not(#rp){display:none!important}html,body{background:#fff!important;height:auto!important;overflow:visible!important}#rp{display:block}#rp,#rp *{animation:none!important;transition:none!important;opacity:1!important}}
 </style>
 <style id="pgs">@page{size:A4;margin:14mm 12mm 16mm}</style>
 </head>
@@ -268,28 +282,36 @@ footer{max-width:1320px;margin:0 auto;padding:6px max(14px,env(safe-area-inset-r
   <h3 style="font-size:1.1rem;margin-bottom:12px">🖨 ใบรายงานสรุปผล (A4)</h3>
   <div id="rtabs" class="rt5"><button data-t="day" onclick="rtype('day')">รายวัน</button><button data-t="week" onclick="rtype('week')">รายสัปดาห์</button><button data-t="month" onclick="rtype('month')">รายเดือน</button><button data-t="year" onclick="rtype('year')">รายปี</button><button data-t="cur" onclick="rtype('cur')">ตามตัวกรอง</button></div>
   <div class="rf"><div><label for="rdt">วันที่</label><input type="date" id="rdt"></div><div><label for="rmo">เดือน</label><select id="rmo"></select></div><div><label for="ryr">ปี (พ.ศ.)</label><select id="ryr"></select></div>
-    <div><label for="rby">ผู้จัดทำรายงาน (แสดงในช่องลงนาม — เว้นว่างได้)</label><input id="rby" maxlength="80" placeholder="ชื่อ-สกุล ผู้จัดทำ"></div></div>
+    <div><label for="rby">ชื่อผู้จัดทำรายงาน (แสดงในช่องลงนาม — เว้นว่างได้)</label><input id="rby" maxlength="80" placeholder="ชื่อ-สกุล ผู้จัดทำ"></div></div>
   <p id="rhint" style="font-size:.8rem;color:var(--mu);margin:8px 0 14px"></p>
-  <div class="mbs"><button class="mb" style="background:linear-gradient(120deg,#4338ca,#0e7490)" onclick="report('print')">🖨 พิมพ์ / บันทึก PDF</button><button class="mb" style="background:#0d9488" onclick="report('file')">⬇ ดาวน์โหลดไฟล์รายงาน</button>
+  <div class="mbs"><button class="mb full" style="background:linear-gradient(120deg,#4338ca,#0e7490);font-size:1rem" onclick="preview()">👁 ดูตัวอย่างใบรายงาน (แบ่งหน้า A4)</button>
+    <button class="mb" style="background:#3730a3" onclick="report('print')">🖨 พิมพ์ / PDF ทันที</button><button class="mb" style="background:#0d9488" onclick="report('file')">⬇ ดาวน์โหลดไฟล์</button>
+    <button class="mb ix" style="background:#7c3aed" onclick="exportImg('png')">🖼 บันทึกเป็น PNG</button><button class="mb ix" style="background:#db2777" onclick="exportImg('jpg')">🖼 บันทึกเป็น JPG</button>
     <button class="mb full" style="background:#64748b" onclick="closeMo('rm')">ยกเลิก</button></div>
   <p style="font-size:.74rem;color:var(--mu);margin-top:10px">💡 iPhone/iPad ที่เปิดจากไอคอนหน้าจอโฮม (โหมดแอป) อาจสั่งพิมพ์ไม่ได้ — ให้ใช้ "ดาวน์โหลดไฟล์รายงาน" แล้วเปิดพิมพ์จากไฟล์</p></div></div>
+<div id="pv" role="dialog" aria-modal="true" aria-label="ตัวอย่างใบรายงาน"><div class="pvb"><div class="t"><b id="pvT">ตัวอย่างใบรายงาน</b><small id="pvF"></small></div>
+  <button class="p" onclick="report('print', LAST_RP)">🖨 พิมพ์ / บันทึก PDF</button><button onclick="exportImg('png', LAST_RP)" class="ix">🖼 PNG</button><button onclick="exportImg('jpg', LAST_RP)" class="ix">🖼 JPG</button><button onclick="report('file', LAST_RP)">⬇ HTML</button><button onclick="closePv()" aria-label="ปิดตัวอย่าง">✕ ปิด</button></div>
+  <div class="pvs" id="pvs"><div class="pvw" id="pvw"><div class="pvp" id="pvp"></div></div></div></div>
 <div id="rp"></div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
 'use strict';
 /* ===== ตั้งค่า ===== */
-const VERSION = 'v12', MIN_BACKEND = 11; // แดชบอร์ดนี้ใช้กับ Backend v11 ขึ้นไป (มี UID กันบันทึกซ้ำ)
+const VERSION = 'v13', MIN_BACKEND = 11; // แดชบอร์ดนี้ใช้กับ Backend v11 ขึ้นไป (มี UID กันบันทึกซ้ำ)
 const API_URL = 'https://script.google.com/macros/s/AKfycbyhYoaB58BSjU57biQeieEFsCfHnGb5t285rdRWRC5Sl1a1hYa6wY9E1JZECe9tSOQC/exec';
-const FORM_URL = 'SBK_Service_Audit_Form_v12.html';
+const FORM_URL = 'SBK_Service_Audit_Form_v13.html';
 const PASS_PCT = 70, MIN_DOMAIN = 3, PAGE = 10, AUTO_MS = 5 * 60e3, FETCH_MS = 30000;
 const DN = ['บุคลิกภาพ/การแต่งกาย', 'คำพูด/ภาษา', 'ท่าทาง/ภาษากาย', 'โพเดียม/การปรากฏตัว', 'บริการ/ช่วยเหลือลูกค้า', 'สื่อสาร/ประสานงาน'];
 const SC = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#059669']; // สีระดับคะแนน 1–5 (ตรงกับปุ่มในฟอร์ม)
 const FL = ['ชั้น.B1', 'ชั้น.1', 'ชั้น.2', 'ชั้น.3', 'ชั้น.4', 'ชั้น.5'];
 const MTH = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
 const LOGO = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4338ca"/><stop offset=".6" stop-color="#6366f1"/><stop offset="1" stop-color="#06b6d4"/></linearGradient></defs><rect width="100" height="100" rx="24" fill="url(#g)"/><rect x="20" y="24" width="60" height="58" rx="10" fill="#fff"/><rect x="29" y="56" width="10" height="17" rx="3" fill="#6366f1"/><rect x="45" y="46" width="10" height="27" rx="3" fill="#0ea5e9"/><rect x="61" y="36" width="10" height="37" rx="3" fill="#14b8a6"/><path d="m27 48 15-9 13 4 17-14" fill="none" stroke="#f59e0b" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="76" cy="24" r="9" fill="#fbbf24"/><path d="m76 19 1.8 3.6 4 .6-2.9 2.8.7 4L76 28l-3.6 1.9.7-4-2.9-2.8 4-.6z" fill="#fff"/></svg>';
-const CK = 'sbk_audit_cache_v11', TK = 'sbk_theme', RBK = 'sbk_report_by';
-let ALL = [], F = [], SORT = { k: 'date', d: -1 }, PG = 1, CH = {}, RT = 'day';
+const CK = 'sbk_audit_cache_v13', TK = 'sbk_theme', RBK = 'sbk_report_by';
+let ALL = [], F = [], SORT = { k: 'date', d: -1 }, PG = 1, CH = {}, RT = 'day', LAST_RP = null;
+// ชื่อไฟล์: วัน-เดือน-ปี พ.ศ. เช่น 11-10-2569 (ใช้ - แทน / เพราะ / ใช้ในชื่อไฟล์ไม่ได้)
+const dmy = i => { const m = String(i || '').match(/^(\d{4})-(\d{2})-(\d{2})$/); return m ? m[3] + '-' + m[2] + '-' + (+m[1] + 543) : ''; };
+const safeName = s => String(s).replace(/[\\/:*?"<>|]+/g, '-').replace(/\s+/g, '_').replace(/_+/g, '_').slice(0, 150);
 let SRC = 'api', SRC_NAME = '', autoRange = true, loadSeq = 0, loading = false, lastLoad = 0;
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -366,7 +388,12 @@ const byNewest = (a, b) => a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
 const NAMES = new Map();
 function buildNames() { NAMES.clear(); [...ALL].sort(byNewest).forEach(r => { if (!NAMES.has(r.key)) NAMES.set(r.key, { name: r.name, id: r.id, role: r.role }); }); }
 const nameOf = k => (NAMES.get(k) || {}).name || k.replace(/^(id|nm):/, '');
-function readCache() { try { const j = JSON.parse(lsGet(CK) || 'null'); return j && j.url === API_URL && Array.isArray(j.rows) ? j : null; } catch (e) { return null; } }
+function readCache() { try { const j = JSON.parse(lsGet(CK) || 'null'); if (!j || j.url !== API_URL) return null; const rows = unpack(j); return rows ? { t: j.t, rows } : null; } catch (e) { return null; } }
+// Backend v13 ส่งแบบกะทัดรัด {cols:[...], data:[[...]]} (เล็กกว่าแบบ object ~45% → โหลดเร็วขึ้นบนมือถือ) · Backend เก่าส่ง {rows:[{...}]}
+function unpack(j) {
+  if (Array.isArray(j.cols) && Array.isArray(j.data)) return j.data.map(a => { const o = {}; j.cols.forEach((c, i) => o[c] = a[i]); return o; });
+  return Array.isArray(j.rows) ? j.rows : null;
+}
 function progress(on) {
   const b = $('ldb');
   if (on) { b.style.transition = 'none'; b.style.width = '0'; b.style.opacity = 1; void b.offsetWidth; b.style.transition = 'width 12s cubic-bezier(.1,.7,.2,1)'; b.style.width = '88%'; }
@@ -374,6 +401,7 @@ function progress(on) {
 }
 function busyBtn(on) { $('rfb').classList.toggle('busy', on); $('rfb').disabled = on; }
 function setAll(rows) { ALL = rows; buildNames(); }
+// silent = รีเฟรชอัตโนมัติ (ใช้แคชเซิร์ฟเวอร์ได้) · กดปุ่มรีเฟรช = อ่านชีตสด (fresh=1)
 async function load(silent) {
   if (!API_URL) { setAll(demo()); SRC = 'demo'; banner('ยังไม่ได้ตั้งค่า API_URL — กำลังแสดง "ข้อมูลตัวอย่าง" เพื่อดูหน้าตาแดชบอร์ด'); fillFilters(); apply(); return; }
   const my = ++loadSeq; loading = true; busyBtn(true);
@@ -388,21 +416,27 @@ async function load(silent) {
   try {
     if (navigator.onLine === false) throw new Error('OFFLINE');
     const ac = new AbortController(), tm = setTimeout(() => ac.abort(), FETCH_MS);
-    let txt; try { txt = await (await fetch(API_URL + '?t=' + Date.now(), { signal: ac.signal, cache: 'no-store' })).text(); } finally { clearTimeout(tm); }
+    const t0 = performance.now();
+    let txt; try { txt = await (await fetch(API_URL + '?fmt=a' + (silent ? '' : '&fresh=1') + '&t=' + Date.now(), { signal: ac.signal, cache: 'no-store' })).text(); } finally { clearTimeout(tm); }
+    const ms = Math.round(performance.now() - t0);
     if (my !== loadSeq) return; // มีการโหลดใหม่กว่าแล้ว → ทิ้งผลเก่า
     let j; try { j = JSON.parse(txt); } catch (x) { const er = new Error('HTML'); er.snip = txt.replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160); throw er; }
     if (!j || j.ok !== true) throw new Error((j && j.error) || 'เซิร์ฟเวอร์ตอบกลับผิดพลาด');
-    if (!Array.isArray(j.rows)) throw new Error('รูปแบบข้อมูลจากเซิร์ฟเวอร์ไม่ถูกต้อง');
-    const raw = j.rows, clean = raw.map(cleanRow).filter(Boolean); setAll(dedupe(clean));
-    try { const s = JSON.stringify({ t: Date.now(), url: API_URL, rows: raw }); if (s.length < 2.5e6) lsSet(CK, s); else lsDel(CK); } catch (x) {}
+    const raw = unpack(j); if (!raw) throw new Error('รูปแบบข้อมูลจากเซิร์ฟเวอร์ไม่ถูกต้อง');
+    const clean = raw.map(cleanRow).filter(Boolean); setAll(dedupe(clean));
+    try { const s = JSON.stringify(j.cols ? { t: Date.now(), url: API_URL, cols: j.cols, data: j.data } : { t: Date.now(), url: API_URL, rows: raw }); if (s.length < 2.5e6) lsSet(CK, s); else lsDel(CK); } catch (x) {}
+    // ตรวจความถูกต้อง: % ที่บันทึกในชีต เทียบกับ % ที่คำนวณใหม่จากคะแนนจริง (ต่างกัน = มีคนแก้คะแนนในชีตโดยตรง → แดชบอร์ดใช้ค่าคำนวณใหม่เสมอ)
+    let fixed = 0; raw.forEach(o => { const c = cleanRow(o), sp = Number(o.pct); if (c && o.pct !== '' && o.pct != null && isFinite(sp) && Math.abs(sp - c.pct) > .05) fixed++; });
     lastLoad = Date.now();
-    $('upd').textContent = '🕒 อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น.';
+    $('upd').textContent = '🕒 อัปเดตล่าสุด ' + new Date().toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' }) + ' น. · ' + (ms / 1000).toFixed(1) + ' วิ' + (j.cached ? ' ⚡ แคช' : '');
+    $('upd').title = j.cached ? 'ข้อมูลจากแคชเซิร์ฟเวอร์ (อัปเดตทันทีเมื่อมีการบันทึกจากฟอร์ม) — กด 🔄 รีเฟรช เพื่ออ่านชีตสดโดยตรง' : 'อ่านจาก Google Sheets โดยตรง';
     const msg = [], bv = parseInt(String(j.version || '').replace(/\D/g, ''), 10);
-    if (!j.version) msg.push('⚠️ Backend ยังเป็นโค้ดเก่า (ไม่มีเลขเวอร์ชัน) — วางโค้ด Code_v12.gs แล้ว Deploy → New version');
-    else if (!(bv >= MIN_BACKEND)) msg.push('⚠️ Backend เป็น ' + j.version + ' (ต่ำกว่า v' + MIN_BACKEND + ') ยังไม่มีระบบกันบันทึกซ้ำ — แนะนำอัปเดต Code_v12.gs');
+    if (!j.version) msg.push('⚠️ Backend ยังเป็นโค้ดเก่า (ไม่มีเลขเวอร์ชัน) — วางโค้ด Code_v13.gs แล้ว Deploy → New version');
+    else if (!(bv >= MIN_BACKEND)) msg.push('⚠️ Backend เป็น ' + j.version + ' (ต่ำกว่า v' + MIN_BACKEND + ') ยังไม่มีระบบกันบันทึกซ้ำ — แนะนำอัปเดต Code_v13.gs');
     if (!raw.length) msg.push('เชื่อมต่อสำเร็จ แต่ชีต "ผลการตรวจ" ยังไม่มีข้อมูล — ลองบันทึกจากฟอร์มก่อน');
     else if (clean.length < raw.length) msg.push(`ดึงได้ ${raw.length} แถว ใช้ได้ ${clean.length} แถว (ข้าม ${raw.length - clean.length} แถวที่คะแนนไม่ครบหรือวันที่ผิดรูปแบบ)`);
     if (ALL.length < clean.length) msg.push(`ตัดรายการซ้ำ (UID เดียวกัน) ${clean.length - ALL.length} แถว`);
+    if (fixed) msg.push(`พบ ${fixed} แถวที่ % ในชีตไม่ตรงกับคะแนนจริง (มีการแก้คะแนนในชีตโดยตรง) — แดชบอร์ดคำนวณใหม่จากคะแนนจริงแล้ว`);
     banner(msg.join(' | '), msg.length && !msg[0].startsWith('⚠️'));
   } catch (e) {
     if (my !== loadSeq) return;
@@ -616,21 +650,57 @@ function ranking() {
   $('rkb').innerHTML = R.length ? R.map((r, i) => `<tr style="animation-delay:${Math.min(i, 20) * 30}ms"${r.k ? ` data-k="${esc(r.k)}" tabindex="0"` : ''}>${r.c.map(c => `<td>${c}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${H.length}" class="em">ไม่มีข้อมูลในช่วงที่เลือก</td></tr>`;
 }
 
-/* ===== ใบรายงานมาตรฐาน (A4) ===== */
-const RP_CSS = `.rpd{font-family:'Prompt',sans-serif;color:#0f172a;font-size:11.5px;line-height:1.55}
-.rpd .rh{display:flex;gap:12px;align-items:center;border-bottom:3px solid #3730a3;padding-bottom:8px;margin-bottom:8px}.rpd .rh svg{width:48px;height:48px;flex:none}
-.rpd h1{font-size:15.5px;margin:0;line-height:1.35}.rpd .org{font-size:11px;color:#475569}.rpd .meta{margin-left:auto;text-align:right;font-size:10.5px;white-space:nowrap}
-.rpd .ttl{font-size:13.5px;font-weight:700;color:#3730a3;margin:4px 0 8px}
-.rpd h2{font-size:12.5px;margin:14px 0 6px;color:#fff;background:#3730a3;padding:3px 9px;border-radius:4px;break-after:avoid;page-break-after:avoid;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.rpd table{width:100%;border-collapse:collapse;margin-bottom:3px}.rpd th,.rpd td{border:1px solid #94a3b8;padding:3px 6px;text-align:center;vertical-align:top}
-.rpd th{background:#e0e7ff;font-weight:600;-webkit-print-color-adjust:exact;print-color-adjust:exact}.rpd .kv td{text-align:left}.rpd .kv td:nth-child(odd){background:#f1f5f9;font-weight:600;width:17%;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.rpd .l{text-align:left}.rpd .cap{font-size:10px;color:#475569;margin:2px 0 4px}
+/* ===== ใบรายงานมาตรฐาน (A4) =====
+   v12 เดิม: แถวตารางในใบพิมพ์ว่างเปล่า เพราะ CSS อนิเมชัน "tbody tr{animation:fi … both}" ของแดชบอร์ดไปติดตารางรายงานด้วย
+   → เบราว์เซอร์พิมพ์ตอนแถวยังโปร่งใส (opacity 0) ; v12.1 ปิดอนิเมชัน/ทรานซิชันทั้งหมดในใบรายงานแบบบังคับ */
+const RP_CSS = `.rpd,.rpd *{animation:none!important;transition:none!important;opacity:1!important}
+.rpd{font-family:'Prompt',sans-serif;color:#0f172a;font-size:11px;line-height:1.5;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rpd *{-webkit-print-color-adjust:exact;print-color-adjust:exact;box-sizing:border-box}
+.rpd .rp-hero{position:relative;overflow:hidden;border-radius:14px;padding:14px 16px;color:#fff;background:linear-gradient(115deg,#1e1b4b 0%,#3730a3 45%,#4f46e5 70%,#0e7490 100%);display:flex;gap:12px;align-items:center}
+.rpd .rp-hero:after{content:"";position:absolute;right:-50px;top:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(34,211,238,.45),transparent 70%)}
+.rpd .rp-hero svg{width:50px;height:50px;flex:none;filter:drop-shadow(0 3px 8px rgba(0,0,0,.3))}
+.rpd .rp-hero h1{font-size:15px;margin:0;line-height:1.35;font-weight:700}.rpd .rp-hero .rp-org{font-size:10.5px;opacity:.85}
+.rpd .rp-hero .rp-meta{margin-left:auto;text-align:right;font-size:10px;line-height:1.6;position:relative;z-index:1;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:10px;padding:5px 10px;white-space:nowrap}
+.rpd .rp-ttl{display:flex;justify-content:space-between;align-items:center;gap:10px;margin:10px 0 4px}
+.rpd .rp-ttl b{font-size:14px;color:#3730a3}.rpd .rp-verd{padding:3px 14px;border-radius:99px;font-weight:700;font-size:11.5px}
+.rpd .rp-verd.ok{background:#d1fae5;color:#047857;border:1px solid #6ee7b7}.rpd .rp-verd.ng{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+.rpd .rp-info{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 4px}
+.rpd .rp-info div{background:#f1f5ff;border:1px solid #dbe3ff;border-radius:9px;padding:5px 9px}.rpd .rp-info small{display:block;color:#64748b;font-size:9.5px}.rpd .rp-info b{font-size:10.5px;font-weight:600}
+.rpd .rp-info .rp-w2{grid-column:span 2}
+.rpd .rp-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:8px 0 2px}
+.rpd .rp-kpi{border-radius:12px;padding:9px 11px;border:1px solid var(--c3);background:linear-gradient(140deg,var(--c1),#fff 85%);position:relative;overflow:hidden;break-inside:avoid}
+.rpd .rp-kpi:before{content:"";position:absolute;left:0;top:0;right:0;height:4px;background:var(--c)}
+.rpd .rp-kpi small{display:block;color:#475569;font-size:9.5px;font-weight:500}.rpd .rp-kpi b{display:block;font-size:21px;line-height:1.2;color:var(--c);font-weight:700}
+.rpd .rp-kpi span{font-size:9.5px;color:#475569}.rpd .rp-kpi .rp-mb{height:5px;border-radius:5px;background:#e2e8f0;margin-top:5px;overflow:hidden}.rpd .rp-kpi .rp-mb i{display:block;height:100%;background:var(--c);border-radius:5px}
+.rpd h2{display:flex;align-items:center;gap:8px;font-size:12.5px;margin:14px 0 6px;color:#1e1b4b;padding-bottom:4px;border-bottom:2px solid #c7d2fe;break-after:avoid;page-break-after:avoid}
+.rpd h2 i{font-style:normal;display:grid;place-items:center;width:20px;height:20px;border-radius:6px;background:linear-gradient(135deg,#4f46e5,#0e7490);color:#fff;font-size:10.5px}
+.rpd table{font-size:10.5px;width:100%;border-collapse:separate;border-spacing:0;margin-bottom:3px;border:1px solid #cbd5e1;border-radius:9px;overflow:hidden}
+.rpd th,.rpd td{padding:4px 6px;text-align:center;vertical-align:middle;border-bottom:1px solid #e2e8f0}
+.rpd th{background:#e0e7ff;color:#1e1b4b;font-weight:600;font-size:10.5px;border-bottom:1px solid #c7d2fe}
+.rpd tbody tr:nth-child(even) td{background:#f8faff}.rpd tbody tr:last-child td{border-bottom:0}
+.rpd .l{text-align:left}.rpd .rp-num{font-variant-numeric:tabular-nums}
 .rpd tr{break-inside:avoid;page-break-inside:avoid}.rpd thead{display:table-header-group}
+.rpd .rp-bd{display:inline-block;padding:1px 9px;border-radius:99px;font-size:9.5px;font-weight:600;white-space:nowrap}
+.rpd .rp-bd.ok{background:#d1fae5;color:#047857}.rpd .rp-bd.ng{background:#fee2e2;color:#b91c1c}
+.rpd .rp-bar{display:flex;align-items:center;gap:6px}.rpd .rp-bar span{flex:1;height:7px;border-radius:7px;background:#e2e8f0;overflow:hidden;min-width:50px}.rpd .rp-bar span i{display:block;height:100%;border-radius:7px}
+.rpd .rp-bar b{min-width:38px;text-align:right;font-variant-numeric:tabular-nums}
+.rpd .rp-stk{display:flex;height:11px;border-radius:6px;overflow:hidden;background:#e2e8f0;min-width:120px}.rpd .rp-stk i{display:block;height:100%}
+.rpd .rp-lg{display:flex;gap:10px;font-size:9.5px;color:#475569;margin:3px 0 0}.rpd .rp-lg span{display:inline-flex;align-items:center;gap:4px}.rpd .rp-lg i{width:9px;height:9px;border-radius:2px;display:inline-block}
+.rpd .rp-rk{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:6px;font-weight:700;font-size:10px;background:#e2e8f0;color:#334155}
+.rpd .rp-rk.r1{background:#fde68a;color:#78350f}.rpd .rp-rk.r2{background:#e2e8f0;color:#1e293b;border:1px solid #94a3b8}.rpd .rp-rk.r3{background:#fed7aa;color:#9a3412}
+.rpd .rp-sum{background:linear-gradient(140deg,#eef2ff,#fff 80%);border:1px solid #c7d2fe;border-left:4px solid #4f46e5;border-radius:10px;padding:7px 12px}
+.rpd .rp-sum ul{margin:0;padding-left:16px}.rpd .rp-sum li{margin:0 0 3px}.rpd .rp-sum p{margin:3px 0 0}
 .rpd .ok{color:#047857;font-weight:600}.rpd .ng,.rpd .cr{color:#b91c1c;font-weight:600}
-.rpd ul{margin:0 0 4px;padding-left:18px}.rpd li{margin:0 0 3px}
-.rpd .sig{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:28px;text-align:center;break-inside:avoid;page-break-inside:avoid}
-.rpd .sig div{padding-top:36px}.rpd .sig b{display:block;border-top:1px dotted #334155;padding-top:4px;font-weight:500}.rpd .sig small{display:block;color:#475569}
-.rpd .ft{margin-top:14px;font-size:9.5px;color:#64748b;border-top:1px solid #cbd5e1;padding-top:4px}`;
+.rpd .rp-crit{margin-top:6px;background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;border-radius:10px;padding:6px 12px}
+.rpd .rp-crit ul{margin:0;padding-left:16px}
+.rpd .rp-rule{font-size:10px;color:#475569;background:#f8fafc;border:1px dashed #cbd5e1;border-radius:9px;padding:5px 10px;margin-top:6px}
+.rpd .rp-sig{display:flex;justify-content:flex-end;margin-top:26px;break-inside:avoid;page-break-inside:avoid}
+.rpd .rp-sig div{width:250px;text-align:center;padding-top:34px}.rpd .rp-sig b{display:block;border-top:1px dotted #334155;padding-top:4px;font-weight:500}.rpd .rp-sig small{display:block;color:#475569}
+.rpd .rp-ft{margin-top:14px;font-size:9px;color:#64748b;border-top:1px solid #cbd5e1;padding-top:4px;display:flex;justify-content:space-between;gap:10px}
+.rp-page{width:794px;height:1122px;padding:36px 34px 50px;background:#fff;position:relative;overflow:hidden;box-sizing:border-box;break-after:page;page-break-after:always;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.rp-page:last-child{break-after:auto;page-break-after:auto}
+.rp-page>.rpd{display:flow-root}.rp-page>.rpd>:first-child{margin-top:0!important}
+.rp-pf{position:absolute;left:34px;right:34px;bottom:18px;display:flex;justify-content:space-between;font:9.5px 'Prompt',sans-serif;color:#64748b;border-top:1px solid #e2e8f0;padding-top:5px}`;
 function reportMenu() {
   if (!ALL.length) return toast('ไม่มีข้อมูลสำหรับสร้างใบรายงาน', false);
   const last = ALL.map(r => r.date).sort().pop(), ys = [...new Set(ALL.map(r => +r.date.slice(0, 4)))].sort((a, b) => b - a);
@@ -676,57 +746,220 @@ function buildReport() {
   const lab = k => RT === 'day' ? (k === '-' ? 'ไม่ระบุกะ' : 'กะ' + k) : /^\d{4}-\d\d$/.test(k) ? MTH[+k.slice(5) - 1] + ' ' + (+k.slice(0, 4) + 543) : (RT === 'month' ? 'สัปดาห์เริ่ม ' : '') + fmtD(k);
   const subH = RT === 'day' ? 'กะ' : RT === 'month' ? 'สัปดาห์' : mon ? 'เดือน' : 'วันที่';
   const fbs = R.filter(r => r.fb).sort(byNewest).slice(0, 10);
-  const res = ok => ok ? '<span class="ok">ผ่าน</span>' : '<span class="ng">ต้องอบรมเพิ่ม</span>';
-  let n = 0; const H2 = t => `<h2>${++n}. ${t}</h2>`;
-  const html = `<div class="rh">${LOGO}<div><h1>รายงานผลการตรวจประเมินสมรรถนะการบริการ บุคลิกภาพ และการสื่อสาร</h1><div class="org">ศูนย์การค้าซีคอน บางแค (SBK) · ระบบ SBK Service Audit</div></div>
-    <div class="meta">เลขที่รายงาน: <b>${docNo}</b><br>จัดทำเมื่อ: ${now.toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' })} น.</div></div>
-  <div class="ttl">รายงาน${esc(title)}</div>
-  ${H2('ข้อมูลรายงาน')}<table class="kv"><tr><td>ช่วงเวลารายงาน</td><td>${a ? fmtDL(a) : '-'} – ${b ? fmtDL(b) : '-'}</td><td>ข้อมูลที่พบจริง</td><td>${fmtDL(ds[0])} – ${fmtDL(ds[ds.length - 1])}</td></tr>
-    <tr><td>เงื่อนไขการกรอง</td><td>${esc(flt)}</td><td>ปริมาณข้อมูล</td><td>ตรวจ ${e.n.toLocaleString('th-TH')} ครั้ง · พนักงาน ${rk.length} คน · ผู้ตรวจ ${ins.length} คน</td></tr>
-    <tr><td>แหล่งข้อมูล</td><td colspan="3">${esc(src)}</td></tr></table>
-  ${H2('เกณฑ์การประเมิน')}<ul><li>ให้คะแนน 6 หัวข้อ หัวข้อละ 1–5 คะแนน (1 = ปรับปรุงด่วน … 5 = ดีเยี่ยม) · คะแนนร้อยละ = ผลรวมคะแนน ÷ 30 × 100 (กลุ่มข้อมูลใช้ค่าเฉลี่ยรายหัวข้อ ÷ 5 × 100)</li>
-    <li>เกณฑ์ <b>ผ่าน</b>: คะแนนร้อยละ ≥ ${PASS_PCT}% <u>และ</u> ไม่มีหัวข้อใดเฉลี่ยต่ำกว่า ${MIN_DOMAIN} จาก 5 · หากไม่ครบทั้งสองเงื่อนไข = <b>ต้องอบรมเพิ่ม</b></li></ul>
-  ${H2('บทสรุปผู้บริหาร')}<div>${insightHtml(R)}</div>
-  ${H2('ตัวชี้วัดหลัก')}<table><thead><tr><th>คะแนนภาพรวม</th><th>อัตราผ่าน (รายครั้ง)</th><th>บุคลิกภาพ &amp; โพเดียม</th><th>การพูด &amp; การบริการ</th><th>พนักงาน ผ่าน / ต้องอบรมเพิ่ม</th><th>ผลภาพรวม</th></tr></thead>
-    <tr><td><b>${e.pct}%</b></td><td>${r1(pass / e.n * 100)}% (${pass}/${e.n})</td><td>${r1(ppS)}%</td><td>${r1(csS)}%</td><td>${rk.filter(x => x.pass).length} / ${rk.filter(x => !x.pass).length} คน</td><td>${res(e.pass)}</td></tr></table>
-  ${H2('ผลรายหัวข้อและการกระจายระดับคะแนน')}<table><thead><tr><th rowspan="2">หัวข้อประเมิน</th><th rowspan="2">เฉลี่ย<br>(เต็ม 5)</th><th rowspan="2">ร้อยละ</th><th colspan="5">จำนวนครั้งที่ได้คะแนน</th><th rowspan="2">เทียบเกณฑ์<br>(≥ ${MIN_DOMAIN})</th></tr><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th></tr></thead>
-    ${e.av.map((x, i) => `<tr><td class="l">${i + 1}. ${DN[i]}</td><td>${r1(x).toFixed(1)}</td><td>${r1(x / 5 * 100)}%</td>${dd[i].map(c => `<td>${c}</td>`).join('')}<td>${x >= MIN_DOMAIN ? '<span class="ok">ผ่าน</span>' : '<span class="ng">ต่ำกว่าเกณฑ์</span>'}</td></tr>`).join('')}</table>
-  ${H2('ผลการประเมินแยกตามช่วงย่อย')}<table><thead><tr><th>${subH}</th><th>ตรวจ (ครั้ง)</th><th>พนักงาน (คน)</th><th>คะแนนเฉลี่ย</th><th>อัตราผ่าน (รายครั้ง)</th></tr></thead>
-    ${ks.map(k => { const v = g[k], ev = evalSet(v), p = v.filter(r => r.pass).length; return `<tr><td class="l">${esc(lab(k))}</td><td>${v.length}</td><td>${new Set(v.map(r => r.key)).size}</td><td>${ev.pct}%</td><td>${r1(p / v.length * 100)}%</td></tr>`; }).join('')}</table>
-  ${H2('ผลการจัดอันดับพนักงาน (เรียงคะแนนมาก → น้อย)')}<table><thead><tr><th>อันดับ</th><th>รหัส</th><th>ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตรวจ (ครั้ง)</th><th>คะแนน</th><th>ผล</th><th>หัวข้อที่ควรพัฒนา</th></tr></thead>
-    ${rk.map((x, i) => `<tr><td>${i + 1}</td><td>${esc(x.id || '-')}</td><td class="l">${esc(x.n)}</td><td>${esc(x.role)}</td><td>${x.k}</td><td>${x.pct}%</td><td>${res(x.pass)}</td><td class="l">${weakest(x.av)}</td></tr>`).join('')}</table>
-  ${H2('สรุปการปฏิบัติงานของผู้ตรวจประเมิน')}<table><thead><tr><th>ลำดับ</th><th>ผู้ตรวจ</th><th>ตรวจ (ครั้ง)</th><th>พนักงานที่ตรวจ (คน)</th><th>คะแนนเฉลี่ยที่ให้</th><th>ตรวจล่าสุด</th></tr></thead>
-    ${ins.map((x, i) => `<tr><td>${i + 1}</td><td class="l">${esc(x.n)}</td><td>${x.k}</td><td>${x.p}</td><td>${x.pct}%</td><td>${fmtD(x.last)}</td></tr>`).join('')}</table>
-  ${H2('ข้อเสนอแนะจากการตรวจ (ล่าสุดไม่เกิน 10 รายการ)')}${fbs.length ? `<table><thead><tr><th>วันที่</th><th>พนักงาน</th><th>ผู้ตรวจ</th><th>ข้อเสนอแนะ</th></tr></thead>${fbs.map(r => `<tr><td>${fmtD(r.date)}</td><td class="l">${esc(r.name)}</td><td class="l">${esc(r.inspector || '-')}</td><td class="l">${esc(r.fb)}</td></tr>`).join('')}</table>` : '<p>— ไม่มีข้อเสนอแนะในช่วงนี้ —</p>'}
-  <div class="sig"><div><b>(${by ? esc(by) : '.......................................'})</b><small>ผู้จัดทำรายงาน</small><small>วันที่ ........../........../..........</small></div>
-    <div><b>(.......................................)</b><small>ผู้ตรวจสอบ</small><small>วันที่ ........../........../..........</small></div>
-    <div><b>(.......................................)</b><small>ผู้อนุมัติ</small><small>วันที่ ........../........../..........</small></div></div>
-  <div class="ft">เอกสารนี้สร้างจากระบบ SBK Service Audit ${VERSION} · เลขที่ ${docNo} · ตัวเลขทั้งหมดคำนวณจากข้อมูลการตรวจที่บันทึกในระบบ ณ เวลาที่จัดทำ</div>`;
-  return { html, docNo, title };
+  let n = 0; const H2 = t => `<h2><i>${++n}</i>${t}</h2>`;
+  const bdg = ok => `<span class="rp-bd ${ok ? 'ok' : 'ng'}">${ok ? 'ผ่าน' : 'ต้องอบรมเพิ่ม'}</span>`;
+  const bar = p => `<div class="rp-bar"><span><i style="width:${Math.max(0, Math.min(100, p))}%;background:${pcol(p)}"></i></span><b>${p}%</b></div>`;
+  const kpi = (c, c1, c3, t, v, s, p) => `<div class="rp-kpi" style="--c:${c};--c1:${c1};--c3:${c3}"><small>${t}</small><b>${v}</b><span>${s}</span>${p == null ? '' : `<div class="rp-mb"><i style="width:${Math.max(0, Math.min(100, p))}%"></i></div>`}</div>`;
+  const pp = rk.filter(x => x.pass).length;
+  const html = `<div class="rp-hero">${LOGO}<div style="position:relative;z-index:1"><h1>รายงานผลการตรวจประเมินสมรรถนะการบริการ<br>บุคลิกภาพ และการสื่อสาร</h1><div class="rp-org">ศูนย์การค้าซีคอน บางแค (SBK) · ระบบ SBK Service Audit</div></div>
+    <div class="rp-meta">เลขที่รายงาน <b>${docNo}</b><br>จัดทำเมื่อ ${now.toLocaleString('th-TH', { dateStyle: 'medium', timeStyle: 'short' })} น.</div></div>
+  <div class="rp-ttl"><b>รายงาน${esc(title)}</b><span class="rp-verd ${e.pass ? 'ok' : 'ng'}">ผลภาพรวม: ${e.pass ? '✔ ผ่านเกณฑ์' : '✖ ต่ำกว่าเกณฑ์'}</span></div>
+  <div class="rp-info"><div class="rp-w2"><small>ช่วงเวลารายงาน</small><b>${a ? fmtDL(a) : '-'} – ${b ? fmtDL(b) : '-'}</b></div><div><small>ปริมาณข้อมูล</small><b>${e.n.toLocaleString('th-TH')} ครั้ง · ${rk.length} คน</b></div><div><small>ผู้ตรวจประเมิน</small><b>${ins.length} คน</b></div>
+    <div class="rp-w2"><small>เงื่อนไขการกรอง</small><b>${esc(flt)}</b></div><div class="rp-w2"><small>แหล่งข้อมูล</small><b>${esc(src)}</b></div></div>
+  <div class="rp-kpis">${kpi('#4f46e5', '#e0e7ff', '#c7d2fe', 'คะแนนภาพรวม', e.pct + '%', 'อัตราผ่าน ' + r1(pass / e.n * 100) + '% (' + pass + '/' + e.n + ' ครั้ง)', e.pct)}
+    ${kpi('#0284c7', '#e0f2fe', '#bae6fd', 'บุคลิกภาพ & โพเดียม', r1(ppS) + '%', 'แต่งกาย · ท่าทาง · โพเดียม', ppS)}
+    ${kpi('#059669', '#d1fae5', '#a7f3d0', 'การพูด & การบริการ', r1(csS) + '%', 'คำพูด · บริการ · ประสานงาน', csS)}
+    ${kpi('#ea580c', '#ffedd5', '#fed7aa', 'พนักงาน ผ่าน / ต้องอบรม', pp + ' / ' + (rk.length - pp), 'ผ่าน ' + r1(pp / rk.length * 100) + '% ของ ' + rk.length + ' คน', pp / rk.length * 100)}</div>
+  ${H2('บทสรุปผู้บริหาร')}<div class="rp-sum">${insightHtml(R).replace(/<ul><li class="cr">[^<]*<\/li>([\s\S]*?)<\/ul>/, '</div><div class="rp-crit"><b class="cr">⚠️ ประเด็นที่ต้องดำเนินการ (Critical Action Items)</b><ul>$1</ul>')}</div>
+  ${H2('ผลรายหัวข้อและการกระจายระดับคะแนน')}<table><thead><tr><th class="l">หัวข้อประเมิน</th><th style="width:22%">คะแนนเฉลี่ย (ร้อยละ)</th><th>เต็ม 5</th><th style="width:26%">การกระจายคะแนน 1 → 5</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>เกณฑ์ ≥ ${MIN_DOMAIN}</th></tr></thead><tbody>
+    ${e.av.map((x, i) => { const t = dd[i].reduce((s, c) => s + c, 0) || 1; return `<tr><td class="l">${i + 1}. ${DN[i]}</td><td>${bar(r1(x / 5 * 100))}</td><td class="rp-num"><b>${r1(x).toFixed(1)}</b></td><td><div class="rp-stk">${dd[i].map((c, j) => c ? `<i style="width:${c / t * 100}%;background:${SC[j]}"></i>` : '').join('')}</div></td>${dd[i].map(c => `<td class="rp-num">${c}</td>`).join('')}<td>${bdg(x >= MIN_DOMAIN)}</td></tr>`; }).join('')}</tbody></table>
+    <div class="rp-lg">${SC.map((c, j) => `<span><i style="background:${c}"></i>${j + 1} คะแนน</span>`).join('')}</div>
+  ${H2('ผลการประเมินแยกตาม' + subH)}<table><thead><tr><th class="l">${subH}</th><th>ตรวจ (ครั้ง)</th><th>พนักงาน (คน)</th><th style="width:30%">คะแนนเฉลี่ย</th><th style="width:22%">อัตราผ่าน (รายครั้ง)</th></tr></thead><tbody>
+    ${ks.map(k => { const v = g[k], ev = evalSet(v), p = v.filter(r => r.pass).length; return `<tr><td class="l">${esc(lab(k))}</td><td class="rp-num">${v.length}</td><td class="rp-num">${new Set(v.map(r => r.key)).size}</td><td>${bar(ev.pct)}</td><td class="rp-num">${r1(p / v.length * 100)}%</td></tr>`; }).join('')}</tbody></table>
+  ${H2('ผลการจัดอันดับพนักงาน (เรียงคะแนนมาก → น้อย)')}<table><thead><tr><th>อันดับ</th><th>รหัส</th><th class="l">ชื่อ-สกุล</th><th>ตำแหน่ง</th><th>ตรวจ</th><th style="width:22%">คะแนน</th><th>ผล</th><th class="l">หัวข้อที่ควรพัฒนา</th></tr></thead><tbody>
+    ${rk.map((x, i) => `<tr><td><span class="rp-rk${i < 3 ? ' r' + (i + 1) : ''}">${i + 1}</span></td><td class="rp-num">${esc(x.id || '-')}</td><td class="l">${esc(x.n)}</td><td>${esc(x.role)}</td><td class="rp-num">${x.k}</td><td>${bar(x.pct)}</td><td>${bdg(x.pass)}</td><td class="l">${weakest(x.av)}</td></tr>`).join('')}</tbody></table>
+  ${H2('สรุปการปฏิบัติงานของผู้ตรวจประเมิน')}<table><thead><tr><th>ลำดับ</th><th class="l">ผู้ตรวจ</th><th>ตรวจ (ครั้ง)</th><th>พนักงานที่ตรวจ (คน)</th><th style="width:28%">คะแนนเฉลี่ยที่ให้</th><th>ตรวจล่าสุด</th></tr></thead><tbody>
+    ${ins.map((x, i) => `<tr><td>${i + 1}</td><td class="l">${esc(x.n)}</td><td class="rp-num">${x.k}</td><td class="rp-num">${x.p}</td><td>${bar(x.pct)}</td><td>${fmtD(x.last)}</td></tr>`).join('')}</tbody></table>
+  ${H2('ข้อเสนอแนะจากการตรวจ (ล่าสุดไม่เกิน 10 รายการ)')}${fbs.length ? `<table><thead><tr><th style="width:14%">วันที่</th><th class="l" style="width:22%">พนักงาน</th><th class="l" style="width:18%">ผู้ตรวจ</th><th class="l">ข้อเสนอแนะ</th></tr></thead><tbody>${fbs.map(r => `<tr><td>${fmtD(r.date)}</td><td class="l">${esc(r.name)}</td><td class="l">${esc(r.inspector || '-')}</td><td class="l">${esc(r.fb)}</td></tr>`).join('')}</tbody></table>` : '<p style="color:#64748b">— ไม่มีข้อเสนอแนะในช่วงนี้ —</p>'}
+  <div class="rp-rule"><b>เกณฑ์การประเมิน:</b> ให้คะแนน 6 หัวข้อ หัวข้อละ 1–5 (1 = ปรับปรุงด่วน … 5 = ดีเยี่ยม) · คะแนนร้อยละ = ผลรวมคะแนน ÷ 30 × 100 · <b>ผ่าน</b> เมื่อคะแนน ≥ ${PASS_PCT}% <u>และ</u> ไม่มีหัวข้อใดเฉลี่ยต่ำกว่า ${MIN_DOMAIN} จาก 5</div>
+  <div class="rp-sig"><div><b>(${by ? esc(by) : '.......................................................'})</b><small>ผู้จัดทำรายงาน</small><small>วันที่ ........../........../..........</small></div></div>
+  <div class="rp-ft"><span>เอกสารนี้สร้างจากระบบ SBK Service Audit ${VERSION} · ตัวเลขทั้งหมดคำนวณจากข้อมูลการตรวจที่บันทึกในระบบ ณ เวลาที่จัดทำ</span><span>${docNo}</span></div>`;
+  const per = RT === 'day' ? dmy(a) : RT === 'month' ? a.slice(5, 7) + '-' + (+a.slice(0, 4) + 543) : RT === 'year' ? String(+a.slice(0, 4) + 543)
+    : (a && b ? (a === b ? dmy(a) : dmy(a) + '_ถึง_' + dmy(b)) : dmy(ds[0]) + '_ถึง_' + dmy(ds[ds.length - 1]));
+  const kind = { day: 'ประจำวัน', week: 'ประจำสัปดาห์', month: 'ประจำเดือน', year: 'ประจำปี', cur: 'ตามตัวกรอง' }[RT];
+  const fileBase = safeName('SBK_ServiceAudit_รายงาน' + kind + '_' + per);
+  return { html, docNo, title, fileBase };
 }
-function report(mode) {
+/* ===== แบ่งใบรายงานเป็นหน้า A4 (794 × 1122 px) =====
+   ใช้ชุดหน้าเดียวกันกับ: ดูตัวอย่าง · พิมพ์/PDF · ไฟล์ HTML · รูป PNG/JPG → ทุกช่องทางได้หน้าตรงกัน
+   - ตารางยาวแบ่งข้ามหน้าทีละแถว และพิมพ์หัวตารางซ้ำทุกหน้า
+   - หัวข้อ (h2) ไม่ถูกทิ้งไว้ท้ายหน้าเดี่ยว ๆ จะย้ายไปอยู่กับเนื้อหาในหน้าถัดไป
+   - ทุกหน้ามีท้ายกระดาษ: เลขที่รายงาน + "หน้า X / N" */
+const PAGE_W = 794, PAGE_H = 1122, PAGE_BODY = 1122 - 36 - 50; // พื้นที่เนื้อหาต่อหน้า (หักขอบบน 36 + ล่าง 50 สำหรับท้ายกระดาษ)
+async function paginate(r) {
+  try { await document.fonts.ready; } catch (e) {}
+  const host = document.createElement('div');
+  host.style.cssText = 'position:fixed;left:-20000px;top:0;width:' + PAGE_W + 'px;visibility:hidden;pointer-events:none';
+  host.innerHTML = `<style>${RP_CSS}</style><div class="rpd" style="width:${PAGE_W - 68}px;display:flow-root">${r.html}</div>`;
+  document.body.appendChild(host);
+  try {
+    const blocks = [...host.querySelector('.rpd').children].filter(b => b.tagName !== 'STYLE');
+    const pages = []; let cur;
+    const newPage = carry => {
+      const pg = document.createElement('div'); pg.className = 'rp-page';
+      const body = document.createElement('div'); body.className = 'rpd'; pg.appendChild(body); host.appendChild(pg);
+      pages.push(body); cur = body; if (carry) body.appendChild(carry);
+    };
+    const over = () => cur.offsetHeight > PAGE_BODY;
+    // ถ้าองค์ประกอบสุดท้ายของหน้าเป็นหัวข้อ → ยกไปหน้าใหม่ด้วย (ไม่ให้หัวข้อค้างท้ายหน้า)
+    const breakPage = () => { const last = cur.lastElementChild; const carry = last && last.tagName === 'H2' && cur.children.length > 1 ? last : null; if (carry) carry.remove(); newPage(carry); };
+    newPage();
+    for (const b of blocks) {
+      const n = b.cloneNode(true); cur.appendChild(n);
+      if (!over()) continue;
+      n.remove();
+      if (n.tagName === 'TABLE' && n.tBodies[0] && n.tBodies[0].rows.length > 1) {
+        const head = n.tHead, rows = [...n.tBodies[0].rows];
+        const mk = () => { const t = n.cloneNode(false); if (head) t.appendChild(head.cloneNode(true)); const tb = document.createElement('tbody'); t.appendChild(tb); cur.appendChild(t); return tb; };
+        let tb = mk();
+        for (const row of rows) {
+          const rc = row.cloneNode(true); tb.appendChild(rc);
+          if (!over()) continue;
+          rc.remove();
+          if (!tb.rows.length) tb.parentNode.remove(); // แม้แถวแรกก็ไม่พอ → เริ่มตารางที่หน้าใหม่
+          breakPage(); tb = mk(); tb.appendChild(rc);
+        }
+        continue;
+      }
+      if (cur.children.length) breakPage();
+      cur.appendChild(n); // บล็อกเดียวใหญ่กว่า 1 หน้า (กรณีพิเศษ) → วางไว้ตามเดิม
+    }
+    const N = pages.length;
+    return pages.map((b, i) => { const pg = b.parentNode;
+      pg.insertAdjacentHTML('beforeend', `<div class="rp-pf"><span>SBK Service Audit · ${esc(r.docNo)}</span><span>หน้า ${i + 1} / ${N}</span></div>`);
+      return pg.outerHTML; });
+  } finally { host.remove(); }
+}
+// สร้างใบรายงาน + แบ่งหน้า (ใช้ผลเดิมถ้ามีแล้ว เช่น กดจากหน้าต่างดูตัวอย่าง)
+async function getReport(pre) {
+  if (pre && pre.pages) return pre;
+  const r = pre || buildReport(); r.pages = await paginate(r); return r;
+}
+const pagesHtml = r => `<style>${RP_CSS}</style>` + r.pages.join('');
+let busyRp = false;
+async function report(mode, pre) {
+  if (busyRp) return; busyRp = true;
   let r;
-  try { r = buildReport(); } catch (e) { return toast(e.message, false); }
+  try { r = await getReport(pre); } catch (e) { busyRp = false; return toast(e.message, false); }
+  busyRp = false;
   lsSet(RBK, ($('rby').value || '').trim());
   if (mode === 'file') {
-    // ไฟล์ HTML ในตัว: เปิดได้ทุกอุปกรณ์ แล้วสั่งพิมพ์/บันทึก PDF ได้ (ทางออกเมื่อสั่งพิมพ์จากโหมดแอปบน iOS ไม่ได้)
-    const doc = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(r.docNo)} รายงาน${esc(r.title)}</title>
-<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700&display=swap" rel="stylesheet"><style>@page{size:A4;margin:14mm 12mm 16mm}body{margin:0;padding:20px;background:#f1f5f9}.pg{max-width:210mm;margin:0 auto;background:#fff;padding:14mm 12mm;box-shadow:0 4px 24px rgba(0,0,0,.08)}
-.np{position:sticky;top:10px;float:right;border:0;border-radius:10px;padding:10px 16px;background:#3730a3;color:#fff;font:600 14px Prompt,sans-serif;cursor:pointer}@media print{body{padding:0;background:#fff}.pg{box-shadow:none;padding:0;max-width:none}.np{display:none}}${RP_CSS}</style></head>
-<body><button class="np" onclick="print()">🖨 พิมพ์ / บันทึก PDF</button><div class="pg rpd">${r.html}</div></body></html>`;
+    // ไฟล์ HTML ในตัว (แบ่งหน้าแล้ว): เปิดได้ทุกอุปกรณ์ แล้วสั่งพิมพ์/บันทึก PDF ได้
+    const doc = `<!DOCTYPE html><html lang="th"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(r.fileBase)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet"><style>@page{size:A4;margin:0}body{margin:0;padding:20px 0;background:#e2e8f0;display:flex;flex-direction:column;align-items:center;gap:18px}
+.rp-page{box-shadow:0 6px 24px rgba(0,0,0,.15)}.np{position:fixed;top:12px;right:12px;border:0;border-radius:10px;padding:10px 16px;background:#3730a3;color:#fff;font:600 14px Prompt,sans-serif;cursor:pointer;z-index:5}
+@media print{body{padding:0;background:#fff;gap:0;display:block}.rp-page{box-shadow:none}.np{display:none}}</style></head>
+<body><button class="np" onclick="print()">🖨 พิมพ์ / บันทึก PDF</button>${pagesHtml(r)}</body></html>`;
     try {
       const url = URL.createObjectURL(new Blob([doc], { type: 'text/html;charset=utf-8' })), a = document.createElement('a');
-      a.href = url; a.download = r.docNo + '.html'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
-      closeMo('rm'); toast('ดาวน์โหลดไฟล์รายงาน ' + r.docNo + ' แล้ว', true);
+      a.href = url; a.download = r.fileBase + '.html'; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 5000);
+      closeMo('rm'); toast('ดาวน์โหลด ' + r.fileBase + '.html แล้ว (' + r.pages.length + ' หน้า)', true, 4500);
     } catch (e) { toast('ดาวน์โหลดไม่สำเร็จ: ' + e.message, false); }
     return;
   }
-  $('rp').innerHTML = `<style>${RP_CSS}</style><div class="rpd">${r.html}</div>`;
-  // หัว/ท้ายกระดาษ: เลขที่รายงาน + เลขหน้า (Chrome/Edge รองรับ — เบราว์เซอร์อื่นจะข้ามไปโดยไม่กระทบเนื้อหา)
-  $('pgs').textContent = `@page{size:A4;margin:14mm 12mm 16mm;@bottom-left{content:"${r.docNo}";font:9px Prompt,sans-serif;color:#64748b}@bottom-right{content:"หน้า " counter(page) " / " counter(pages);font:9px Prompt,sans-serif;color:#64748b}}`;
+  // พิมพ์: ใช้หน้าที่แบ่งไว้แล้ว ขอบกระดาษ 0 (ขอบอยู่ในหน้าแล้ว) → PDF ได้จำนวนหน้าและหน้าตาตรงกับตัวอย่าง
+  $('rp').innerHTML = pagesHtml(r);
+  $('pgs').textContent = '@page{size:A4;margin:0}';
+  PRINT_TITLE = PRINT_TITLE || document.title; document.title = r.fileBase; // ชื่อไฟล์ PDF เริ่มต้น
   closeMo('rm');
-  setTimeout(() => { try { window.print(); } catch (x) { toast('อุปกรณ์นี้สั่งพิมพ์ไม่ได้ — ใช้ "ดาวน์โหลดไฟล์รายงาน" แทน', false, 6000); } }, 150);
+  setTimeout(() => { try { window.print(); } catch (x) { toast('อุปกรณ์นี้สั่งพิมพ์ไม่ได้ — ใช้ "ดาวน์โหลด" แทน', false, 6000); } }, 150);
 }
+let PRINT_TITLE = '';
+function afterPrint() { $('rp').innerHTML = ''; if (PRINT_TITLE) { document.title = PRINT_TITLE; PRINT_TITLE = ''; } }
+/* ===== ดูตัวอย่างใบรายงาน (แสดงเป็นหน้า A4 เรียงลงมา ย่อให้พอดีจออัตโนมัติ) ===== */
+async function preview() {
+  let r; try { r = await getReport(); } catch (e) { return toast(e.message, false); }
+  lsSet(RBK, ($('rby').value || '').trim());
+  LAST_RP = r; closeMo('rm');
+  $('pvT').textContent = '👁 ตัวอย่างรายงาน' + r.title + ' (' + r.pages.length + ' หน้า)';
+  $('pvF').textContent = 'ชื่อไฟล์: ' + r.fileBase + ' · เลขที่ ' + r.docNo;
+  $('pvp').innerHTML = pagesHtml(r);
+  $('pv').classList.add('on'); document.body.classList.add('lock'); $('pvs').scrollTop = 0;
+  fitPv(); setTimeout(fitPv, 300);
+}
+function fitPv() {
+  if (!$('pv').classList.contains('on')) return;
+  const avail = $('pvs').clientWidth - 24, k = Math.min(1, avail / PAGE_W), p = $('pvp');
+  p.style.transform = 'scale(' + k + ')';
+  $('pvw').style.width = Math.round(PAGE_W * k) + 'px'; $('pvw').style.height = Math.ceil(p.offsetHeight * k) + 'px';
+}
+/* ===== บันทึกใบรายงานเป็นรูป PNG / JPG — 1 หน้า = 1 รูป =====
+   ใช้ html-to-image (วาดด้วยเครื่องมือแสดงผลของเบราว์เซอร์เอง → สระ/วรรณยุกต์ไทยถูกตำแหน่ง) · ล้มเหลว/ภาพว่าง → html2canvas สำรอง */
+const LIBS = {
+  h2i: ['https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.js', 'https://cdn.jsdelivr.net/npm/html-to-image@1.11.11/dist/html-to-image.js', 'https://unpkg.com/html-to-image@1.11.11/dist/html-to-image.js'],
+  h2c: ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js', 'https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js']
+};
+function loadLib(urls, ready) {
+  return new Promise((res, rej) => {
+    if (ready()) return res();
+    let i = 0;
+    const next = () => {
+      if (i >= urls.length) return rej(new Error('โหลดตัวสร้างรูปไม่ได้ (ตรวจอินเทอร์เน็ต)'));
+      const sc = document.createElement('script'); sc.src = urls[i++]; sc.async = true;
+      const to = setTimeout(() => { sc.onload = sc.onerror = null; sc.remove(); next(); }, 10000);
+      sc.onload = () => { clearTimeout(to); ready() ? res() : next(); };
+      sc.onerror = () => { clearTimeout(to); sc.remove(); next(); };
+      document.head.appendChild(sc);
+    };
+    next();
+  });
+}
+let imgBusy = false, useH2C = false;
+// ตรวจว่าภาพไม่ใช่ "ขาวล้วน" (เบราว์เซอร์บางรุ่นวาด foreignObject ไม่ได้) → ถ้าว่างให้ใช้ตัวสำรอง
+function blank(cv) {
+  try { const t = document.createElement('canvas'); t.width = 60; t.height = 60; const x = t.getContext('2d'); x.drawImage(cv, 0, 0, cv.width, Math.min(cv.height, cv.width * .6), 0, 0, 60, 60);
+    const d = x.getImageData(0, 0, 60, 60).data; let n = 0; for (let i = 0; i < d.length; i += 4) if (d[i] < 235 || d[i + 1] < 235 || d[i + 2] < 235) n++; return n < 20;
+  } catch (e) { return false; }
+}
+async function pageCanvas(node) {
+  const PR = 2; // ความละเอียด 2 เท่า (1588 × 2244 px ต่อหน้า)
+  if (!useH2C) {
+    try {
+      await loadLib(LIBS.h2i, () => window.htmlToImage && htmlToImage.toCanvas);
+      // style: สำเนาที่ใช้วาดต้องอยู่ตำแหน่งปกติ (ไม่งั้นจะติดตำแหน่งนอกจอ แล้วได้ภาพขาวทั้งแผ่น)
+      const opt = { pixelRatio: PR, backgroundColor: '#ffffff', width: PAGE_W, height: PAGE_H, cacheBust: true, style: { position: 'static', left: '0', top: '0', margin: '0' } };
+      await htmlToImage.toCanvas(node, opt).catch(() => {}); // Safari: รอบแรกมักวาดฟอนต์ไม่ครบ → วาดซ้ำรอบสอง
+      const cv = await htmlToImage.toCanvas(node, opt);
+      if (cv && cv.width && !blank(cv)) return cv;
+      throw new Error('ภาพว่าง');
+    } catch (e) { console.warn('html-to-image ล้มเหลว ใช้ html2canvas แทน', e); useH2C = true; }
+  }
+  await loadLib(LIBS.h2c, () => typeof window.html2canvas === 'function');
+  return html2canvas(node, { scale: PR, backgroundColor: '#ffffff', useCORS: true, logging: false, width: PAGE_W, height: PAGE_H, windowWidth: PAGE_W + 100 });
+}
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function exportImg(fmt, pre) {
+  if (imgBusy) return;
+  imgBusy = true; document.querySelectorAll('.ix').forEach(b => b.disabled = true);
+  const box = document.createElement('div');
+  try {
+    const r = await getReport(pre);
+    lsSet(RBK, ($('rby').value || '').trim());
+    const N = r.pages.length, type = fmt === 'jpg' ? 'image/jpeg' : 'image/png';
+    box.style.cssText = 'position:fixed;left:-20000px;top:0;width:' + PAGE_W + 'px;z-index:-1';
+    box.innerHTML = pagesHtml(r); document.body.appendChild(box);
+    try { await document.fonts.ready; } catch (e) {}
+    const nodes = [...box.querySelectorAll('.rp-page')];
+    let total = 0;
+    for (let i = 0; i < N; i++) {
+      toast(`กำลังสร้างรูป ${fmt.toUpperCase()} หน้า ${i + 1} / ${N} ...`, true, 20000);
+      const cv = await pageCanvas(nodes[i]);
+      const blob = await new Promise((res, rej) => cv.toBlob(b => b ? res(b) : rej(new Error('แปลงรูปไม่สำเร็จ (หน่วยความจำไม่พอ)')), type, .92));
+      total += blob.size;
+      const name = r.fileBase + (N > 1 ? `_หน้า${i + 1}จาก${N}` : '') + '.' + fmt, url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 10000);
+      if (i < N - 1) await sleep(600); // เว้นช่วงระหว่างไฟล์ ให้เบราว์เซอร์ดาวน์โหลดได้ครบ
+    }
+    closeMo('rm');
+    toast(`บันทึกรูป ${fmt.toUpperCase()} แล้ว ${N} ไฟล์ (${N} หน้า · ${Math.round(total / 1024)} KB)` + (N > 1 ? ' — ถ้าเบราว์เซอร์ถาม "ดาวน์โหลดหลายไฟล์" ให้กดอนุญาต' : ''), true, 7000);
+  } catch (e) {
+    console.error(e); toast('สร้างรูปไม่สำเร็จ: ' + (e && e.message || e) + ' — ลองใช้ "พิมพ์ / บันทึก PDF" แทน', false, 7000);
+  } finally {
+    box.remove(); imgBusy = false; document.querySelectorAll('.ix').forEach(b => b.disabled = false);
+  }
+}
+function closePv() { $('pv').classList.remove('on'); $('pvp').innerHTML = ''; if (!document.querySelector('.mo.on')) document.body.classList.remove('lock'); }
+addEventListener('resize', () => fitPv());
 
 /* ===== ตารางรายละเอียด ===== */
 const COLS = [['date', 'วันที่ตรวจ'], ['name', 'ชื่อ-สกุล'], ['role', 'ตำแหน่ง'], ['shift', 'กะ'], ['floor', 'ชั้น'], ['inspector', 'ผู้ตรวจ'], ['pct', 'คะแนน %'], ['pass', 'สถานะ'], ['weak', 'ควรพัฒนา']];
@@ -773,7 +1006,7 @@ function exp(f) {
     const rows = F.map(r => ({ date: r.date, id: r.id, name: r.name, role: r.role, shift: r.shift, loc: r.loc, floor: r.floor, inspector: r.inspector, s1: r.s[0], s2: r.s[1], s3: r.s[2], s4: r.s[3], s5: r.s[4], s6: r.s[5], pct: r.pct, result: r.pass ? 'ผ่าน' : 'ต้องอบรมเพิ่ม', fb: r.fb, photos: r.photos.join(','), uid: r.uid }));
     const txt = f === 'json' ? JSON.stringify(rows, null, 1) : '﻿' + Object.keys(rows[0]).join(',') + '\r\n' + rows.map(r => Object.values(r).map(csvCell).join(',')).join('\r\n');
     const url = URL.createObjectURL(new Blob([txt], { type: f === 'json' ? 'application/json;charset=utf-8' : 'text/csv;charset=utf-8' }));
-    const a = document.createElement('a'); a.href = url; a.download = `SBK_Service_Audit_${$('f1').value || 'all'}_${$('f2').value || 'all'}.${f}`;
+    const a = document.createElement('a'); a.href = url; a.download = safeName('SBK_ServiceAudit_ข้อมูลผลตรวจ_' + (dmy($('f1').value) || 'ทั้งหมด') + ($('f2').value && $('f2').value !== $('f1').value ? '_ถึง_' + dmy($('f2').value) : '')) + '.' + f;
     document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(url), 4000);
     toast('ส่งออกไฟล์ ' + f.toUpperCase() + ' สำเร็จ (' + rows.length.toLocaleString('th-TH') + ' แถว)', true);
   } catch (e) { toast('ส่งออกไม่สำเร็จ: ' + e.message, false); }
@@ -827,16 +1060,16 @@ $('ss').addEventListener('change', () => { const [k, d] = $('ss').value.split(':
 // คลิก/Enter ที่แถวหรือ Leaderboard → รายละเอียดบุคคล (event delegation ปลอดภัยกับทุกชื่อ)
 document.addEventListener('click', e => { const t = e.target.closest('[data-k]'); if (t && !e.target.closest('a')) drill(t.dataset.k); });
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { const m = [...document.querySelectorAll('.mo.on')].pop(); if (m) closeMo(m.id); }
+  if (e.key === 'Escape') { if ($('pv').classList.contains('on')) return closePv(); const m = [...document.querySelectorAll('.mo.on')].pop(); if (m) closeMo(m.id); }
   else if (e.key === 'Enter' && e.target.matches && e.target.matches('[data-k]')) drill(e.target.dataset.k);
 });
 ['mo', 'rm'].forEach(id => $(id).addEventListener('click', e => { if (e.target === e.currentTarget) closeMo(id); }));
-addEventListener('afterprint', () => { $('rp').innerHTML = ''; });
+addEventListener('afterprint', afterPrint);
 addEventListener('online', () => { net(); if (SRC === 'api') load(true); }); addEventListener('offline', net);
 setInterval(() => { if (!document.hidden && SRC === 'api' && !loading && navigator.onLine !== false) load(true); }, AUTO_MS);
 document.addEventListener('visibilitychange', () => { if (!document.hidden && SRC === 'api' && !loading && Date.now() - lastLoad > AUTO_MS) load(true); });
 clock(); setInterval(clock, 1000); makeIcons(); setTimeout(enter, 2500); net();
-loadChart(); load();
+loadChart(); load(true); // เปิดหน้า = ใช้แคชเซิร์ฟเวอร์ (เร็ว) · ข้อมูลที่บันทึกใหม่จากฟอร์มขึ้นทันทีเพราะแคชถูกล้างทุกครั้งที่บันทึก
 
 /* ===== พื้นหลังอนิเมชัน: ออโรราลอยช้า ๆ + อนุภาคเรืองแสงเชื่อมเส้น หนีเมาส์/นิ้ว ===== */
 (function bgAnim() {
